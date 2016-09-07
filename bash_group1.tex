@@ -2,6 +2,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{hyperref}
 \lstset{language=bash,
     morekeywords={in},
     basicstyle=\ttfamily,
@@ -177,7 +178,7 @@ Yes, yes there are. Now we're going to show you how working with files on other 
 
 \begin{frame}{A toy website (cont.)}
 \begin{itemize}
-    \item<1-> We need to move \emph{simplewebsite.txt} to the Stanford servers. To do that, we'll use the command \emph{scp} (secure copy), which allows you to copy files from/to your local computer to/from a remote one much like you would copy a file on your local computer using \emph{scp} 
+    \item<1-> We need to move \emph{simplewebsite.txt} to the Stanford servers. To do that, we'll use the command \emph{scp} (secure copy), which allows you to copy files from/to your local computer to/from a remote one much like you would copy a file on your local computer using \emph{cp} 
     \item<2-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, try \emph{scp simplewebsite.txt your-SUNetID@corn.stanford.edu:$\sim$/WWW/} 
     \item<3-> If all went well, you should see the name of the file followed by 100\% (since the file is so small, the transfer will complete very rapidly). 
     \item<3-> If so, try opening your web browser and going to \emph{web.stanford.edu/$\sim$your-SUNetID/simplewebsite.txt} 
@@ -223,12 +224,36 @@ The terminal gives you access to programming languages like python, both by runn
 \begin{frame}{Etc.}
 Also:
 \begin{itemize}
-\item Powerful commands for text manipulation (sed, awk, grep). Want to find all occurrences of a variable in many different code files and rename it? Want to extract lines from your datafiles that match a certain condition without having to read the files into R? Have a directory full of awful tab-separated datafiles and want to make them comma-separated? These tools can do it. 
+\item Powerful commands for text manipulation (\emph{sed, awk, grep}). Want to find all occurrences of a variable in many different code files and rename it? Want to extract lines from your datafiles that match a certain condition without having to read the files into R? Have a directory full of awful tab-separated datafiles and want to make them comma-separated? These tools can do it. 
 \item Streams and piping: make commands work together, do file I/O, etc.   
-\item Automation: more system specific, but cron, rc files, etc. allow for automation of things like backups, mounting filesystems when you start your computer, or sending reminders to subjects about a task on a schedule.
+\item Automation: more system specific, but \emph{cron}, rc files, etc. allow for automation of things like backups, mounting filesystems when you start your computer, or sending reminders to subjects on a schedule.
 \item Text-editors like \emph{vim}.
-\item Git -- You'll learn about this at the later tutorial!
+\item Git version control -- You'll learn about this at the later tutorial!
 \end{itemize}
+\end{frame}
+
+\begin{frame}{Cheatsheet}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|p{0.5\textwidth}|}
+\hline
+\textbf{Command} & \textbf{Effect} \\
+\hline
+\emph{man command} or \emph{help command} & Get manual/help for a command \\ 
+\emph{pwd} & Print working directory \\
+\emph{cd dir} & Change working directory to \emph{dir} \\
+\emph{ls} & List directory contents \\
+\emph{mkdir dir} & Make a new directory called \emph{dir} \\
+\emph{rmdir dir} & Remove the directory \emph{dir} permanently \\
+\emph{mv source dest} & Move \emph{source} file or folder to \emph{dest} \\
+\emph{cp source dest} & Copy \emph{source} file to \emph{dest} (use -r for folders) \\
+\emph{rm file} & Remove \emph{file} permanently \\
+\emph{ssh user@server} & Connect to \emph{server} as \emph{user} \\
+\emph{scp [[user1@]server1:]source [[user2@]server2:]dest} & Copy \emph{source} from \emph{server1} to \emph{dest} on \emph{server2} (if copying to/from your local computer, just omit the server and user parts in that file's path)\\
+\hline
+\end{tabular}
+}
+(For a more comprehensive reference see {\color{blue} \url{https://gist.github.com/LeCoupa/122b12050f5fb267e75f}})
 \end{frame}
 
 \begin{frame}
