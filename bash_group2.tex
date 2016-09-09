@@ -1,0 +1,140 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\lstset{language=bash,
+    morekeywords={in},
+    basicstyle=\ttfamily,
+    commentstyle=\color{red},
+    keywordstyle=\color{blue},
+    literate={\$}{{\textcolor{purple}{\$}}}1,
+    moredelim=[s][\color{purple}]{\{}{\}},
+    numbers=left,
+    frame=single}
+\usepackage{verbatim}
+
+\usetheme{Madrid}
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\title{Intro to BASH}
+\subtitle{Group 2}
+\author{}
+\date{First Year Bootcamp, 2016}
+\frame{\titlepage}
+
+\section{What are we bashing and why?}
+\begin{frame}{What are we bashing and why?}
+We assume that you have come in to this group with some knowledge of basic shell use (\emph{ls, mv, ...}). We'll discuss:
+\begin{itemize}
+    \item<1-> A bit about Stanford's computing cluster resources, remind you how to access them with \emph{ssh} \& \emph{scp}, and show you how simple hosting websites on them is. 
+    \item<2-> Shell scripting (in a necessarily shallow way, since we only have part of an hour and long textbooks can be written on the subject). 
+\end{itemize}
+\begin{center}
+\only<1>{\vspace{-12em}\includegraphics[width = 0.5\textwidth]{images/caveman.png}\vspace{-2.66em}}
+\end{center}
+\end{frame}
+
+
+
+\section{There are computers other than mine? (FarmShare \& SSH review)}
+\begin{frame}{There are computers other than mine? (FarmShare \& SSH review)}
+Now we'll teach you about Stanford's FarmShare servers and how to build Stanford web pages, and remind you about how to use \emph{ssh} and \emph{scp}. \\[1em]
+\begin{center}
+\includegraphics[width = 0.5\textwidth]{images/network.jpg}
+\end{center}
+\end{frame}
+
+\begin{frame}{Stanford computing clusters: A non-exhaustive list}
+Stanford has a number of computing clusters that you can log into remotely, including:
+\begin{itemize}
+    \item Class or research (or web hosting etc.) machines:
+    \begin{itemize}
+	\item<1-> \textbf{corn:} The workhorse systems, general purpose servers for running small jobs, accessing your shared file space, hosting your website, etc.
+	\item<2-> \textbf{rye:} (somewhat old) GPU machines, still fairly powerful but may not be compatible with newer software. 
+	\item<3-> \textbf{barley:} machines with a job submission system for high memory/high cpu tasks.
+    \end{itemize}
+    \item<4-> Research only clusters:
+    \begin{itemize}
+	\item<4-> \textbf{sherlock:} ~130 computing nodes, both general purpose and specialized nodes (including GPU nodes with 8 Tesla K20Xm cards and 256 GB RAM, and ``big data'' nodes with 1.5 TB RAM). {\color{red} PI must request you an account before you can use sherlock.}
+    \end{itemize}
+\end{itemize}
+\begin{center}\vspace{0em}\includegraphics[width = 0.5\textwidth]{images/farmshare.png}\end{center}
+\end{frame}
+
+\begin{frame}{Connecting to corn}
+\begin{itemize}
+    \item<1-> We'll show you how to connect to one of Stanford's \textbf{corn} servers, which are available for general use. \emph{ssh your-SUNet-ID@corn.stanford.edu}.
+    \item<1-> When prompted for your password, type the password that corresponds to your sunet id. It won't show any characters being typed, just type the password and hit enter. Note: you will probably need to use two-factor authentication, and the timeout is relatively short, have your phone ready.
+    \item<2-> You should see a welcome screen. \emph{ls} and look around, anything in the \emph{$\sim$/WWW/} folder will become a part of your website at \emph{web.stanford.edu/$\sim$your-SUNet-ID/}.
+\end{itemize}
+\begin{center}\vspace{0em}\includegraphics[width = 0.5\textwidth]{images/farmshare.png}\end{center}
+\end{frame}
+
+\begin{frame}{A toy website}
+\begin{itemize}
+    \item<1-> Let's try creating a (very) simple stanford website for you, and remind you how to use \emph{scp} to move things between your computer and servers along the way.
+    \item<2-> Create a text file called simplewebsite.txt somewhere on your computer, and put some text in it (like "Hello World!").  
+    \item<3-> Now, open a new terminal on your own computer (leave the other terminal with the ssh connection open, we'll go back to it in a bit). \emph{cd} to the directory where you saved simplewebsite.txt.  
+\end{itemize}
+\begin{center}
+\includegraphics[width = 0.5\textwidth]{images/firstwebsite.jpg}
+\end{center}
+\end{frame}
+
+\begin{frame}{A toy website (cont.)}
+\begin{itemize}
+    \item<1-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, try \emph{scp simplewebsite.txt your-SUNetID@corn.stanford.edu:$\sim$/WWW/} 
+    \item<2-> If all went well, you should see the name of the file followed by 100\% (since the file is so small, the transfer will complete very rapidly). 
+    \item<2-> If so, try opening your web browser and going to \emph{web.stanford.edu/$\sim$your-SUNetID/simplewebsite.txt} 
+    \item<3-> Do you see your file? Congratulations! You've got a very basic website now. You can use the farmshare system to host experiments that you run online (on websites like mTurk, which are becoming a very popular way to run fast cheap experiments), to create a website for yourself so that people can look you up, etc.  
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cleaning up the website}
+\begin{itemize}
+    \item<1-> Why did we leave the ssh connection open in the other terminal? Because (hopefully) it allowed you to run \emph{scp} without having to log in to the server again (\emph{scp} is built on \emph{ssh} and uses the same connection). Also, we might want to do something with the file on the server once we have uploaded it.
+    \item<2-> For instance, you might not want the world to be able to see this file forever, so change to the \emph{WWW} directory and remove the file (with \emph{rm}).
+    \item<3-> Finally, close your connection to the server by typing \emph{exit}.
+\end{itemize}
+\begin{alertblock}<3->{Sadness}
+Unfortunately Stanford's servers do not allow public key authentication for login. Instead, you must use Kerberos if you want to have easier login (and it's required for some clusters, such as sherlock). To find out more, check out {\color{blue} \url{https://web.stanford.edu/group/farmshare/cgi-bin/wiki/index.php/Advanced_Connection_Options}} 
+\end{alertblock}
+\end{frame}
+
+\section{Being lazy (a hands-on intro to shell scripting)}
+\begin{frame}{Being lazy (a hands-on intro to shell scripting)}
+One of the main reasons bash scripting is useful is that you can arrange commands into scripts, which can be used repeatedly (if you have a frequent task you do like converting data files, etc.). We'll show you a few simple examples here.
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants}
+\begin{lstlisting}
+#!/bin/bash
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Group 2}
+\begin{enumerate}
+\item \textbf{directories/files:} Quick review as necessary
+\item \textbf{streams/piping:} Review as necessary \textit{cat,$>$,$>>$,$|$,tee}
+\item \textbf{servers/ssh:} \textit{ssh,scp,...?}
+\item \textbf{scripts/control flow:} \textit{for,if,source}
+\end{enumerate}
+\end{frame}
+\end{document}
