@@ -10,7 +10,7 @@
     keywordstyle=\color{blue},
     literate={\$}{{\textcolor{purple}{\$}}}1,
     moredelim=[s][\color{purple}]{\{}{\}},
-    numbers=left,
+    numbers=none,
     frame=single}
 \usepackage{verbatim}
 
@@ -46,14 +46,7 @@ We assume that you have come in to this group with some knowledge of basic shell
 
 
 \section{There are computers other than mine? (FarmShare \& SSH review)}
-\begin{frame}{There are computers other than mine? (FarmShare \& SSH review)}
-Now we'll teach you about Stanford's FarmShare servers and how to build Stanford web pages, and remind you about how to use \emph{ssh} and \emph{scp}. \\[1em]
-\begin{center}
-\includegraphics[width = 0.5\textwidth]{images/network.jpg}
-\end{center}
-\end{frame}
-
-\begin{frame}{Stanford computing clusters: A non-exhaustive list}
+\begin{frame}{There are computers other than mine? (Stanford computing clusters)}
 Stanford has a number of computing clusters that you can log into remotely, including:
 \begin{itemize}
     \item Class or research (or web hosting etc.) machines:
@@ -64,7 +57,7 @@ Stanford has a number of computing clusters that you can log into remotely, incl
     \end{itemize}
     \item<4-> Research only clusters:
     \begin{itemize}
-	\item<4-> \textbf{sherlock:} ~130 computing nodes, both general purpose and specialized nodes (including GPU nodes with 8 Tesla K20Xm cards and 256 GB RAM, and ``big data'' nodes with 1.5 TB RAM). {\color{red} PI must request you an account before you can use sherlock.}
+	\item<4-> \textbf{sherlock:} ~130 computing nodes, both general purpose and specialized nodes (including GPU nodes with 8 Tesla K20Xm cards and 256 GB RAM, and ``big data'' nodes with 1.5 TB RAM). {\color{red} PI must request access for you before you can use sherlock.}
     \end{itemize}
 \end{itemize}
 \begin{center}\vspace{0em}\includegraphics[width = 0.5\textwidth]{images/farmshare.png}\end{center}
@@ -72,7 +65,7 @@ Stanford has a number of computing clusters that you can log into remotely, incl
 
 \begin{frame}{Connecting to corn}
 \begin{itemize}
-    \item<1-> We'll show you how to connect to one of Stanford's \textbf{corn} servers, which are available for general use. \emph{ssh your-SUNet-ID@corn.stanford.edu}.
+    \item<1-> We'll show you how to connect to one of Stanford's \textbf{corn} servers, which are available for general use. Run \\ \emph{ssh your-SUNet-ID@corn.stanford.edu}.
     \item<1-> When prompted for your password, type the password that corresponds to your sunet id. It won't show any characters being typed, just type the password and hit enter. Note: you will probably need to use two-factor authentication, and the timeout is relatively short, have your phone ready.
     \item<2-> You should see a welcome screen. \emph{ls} and look around, anything in the \emph{$\sim$/WWW/} folder will become a part of your website at \emph{web.stanford.edu/$\sim$your-SUNet-ID/}.
 \end{itemize}
@@ -83,7 +76,7 @@ Stanford has a number of computing clusters that you can log into remotely, incl
 \begin{itemize}
     \item<1-> Let's try creating a (very) simple stanford website for you, and remind you how to use \emph{scp} to move things between your computer and servers along the way.
     \item<2-> Create a text file called simplewebsite.txt somewhere on your computer, and put some text in it (like "Hello World!").  
-    \item<3-> Now, open a new terminal on your own computer (leave the other terminal with the ssh connection open, we'll go back to it in a bit). \emph{cd} to the directory where you saved simplewebsite.txt.  
+    \item<3-> Now, open a new terminal on your own computer (leave the other terminal with the ssh connection open, we'll go back to it in a bit). In the new terminal, \emph{cd} to the directory where you saved simplewebsite.txt.  
 \end{itemize}
 \begin{center}
 \includegraphics[width = 0.5\textwidth]{images/firstwebsite.jpg}
@@ -92,7 +85,7 @@ Stanford has a number of computing clusters that you can log into remotely, incl
 
 \begin{frame}{A toy website (cont.)}
 \begin{itemize}
-    \item<1-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, try \emph{scp simplewebsite.txt your-SUNetID@corn.stanford.edu:$\sim$/WWW/} 
+    \item<1-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, run \emph{scp simplewebsite.txt your-SUNetID@corn.stanford.edu:$\sim$/WWW/} 
     \item<2-> If all went well, you should see the name of the file followed by 100\% (since the file is so small, the transfer will complete very rapidly). 
     \item<2-> If so, try opening your web browser and going to \emph{web.stanford.edu/$\sim$your-SUNetID/simplewebsite.txt} 
     \item<3-> Do you see your file? Congratulations! You've got a very basic website now. You can use the farmshare system to host experiments that you run online (on websites like mTurk, which are becoming a very popular way to run fast cheap experiments), to create a website for yourself so that people can look you up, etc.  
@@ -112,12 +105,20 @@ Unfortunately Stanford's servers do not allow public key authentication for logi
 
 \section{Being lazy (a hands-on intro to shell scripting)}
 \begin{frame}{Being lazy (a hands-on intro to shell scripting)}
-One of the main reasons bash scripting is useful is that you can arrange commands into scripts, which can be used repeatedly (if you have a frequent task you do like converting data files, etc.). We'll show you a few simple examples here.
+\begin{itemize}
+\item<1-> One of the main reasons bash scripting is useful is that you can arrange commands into scripts, which can be used repeatedly (if you have a frequent task you do like converting data files, etc.). 
+\item<2-> This allows you to be lazy (you don't have to do things manually).
+\item<3-> It can also make your research more reproducible (if you're trying to do the same operation on a bunch of files, a human might miss a file or apply the operation twice or something).
+\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Anonymizing participants}
-\begin{lstlisting}
+
+\subsection{Anonymizing participants (files, for loops, and variables)}
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+Here's a simple script I wrote to create copies of some data files with the participants identifier replaced with an integer. 
+\begin{lstlisting}[title=anonymize.sh]
 #!/bin/bash
+mkdir ../anonymized_data/
 i=0
 for f in data_subject_*.json
 do
@@ -125,8 +126,96 @@ do
   i=$((i+1))
 done
 \end{lstlisting}
+To run this script, you would save it as a .sh file, and then run it by calling it by name (e.g. \emph{./anonymize.sh}). Let's go through the script piece by piece and see how it works. 
 \end{frame}
 
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+#!/bin/bash
+\end{lstlisting} 
+This line tells the shell that you want to run this script with bash. If you wanted to make a directly executable script in another language (like python) you could just replace the \emph{/bin/bash} part with the path to the interpreter for that language (which you can often find with the command \emph{which}, e.g. \emph{which python}).
+\item<2->
+\begin{lstlisting}
+mkdir ../anonymized_data/
+\end{lstlisting}
+This line creates a directory called \emph{anonymized\_data} in the parent of the current working directory.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+i=0
+\end{lstlisting} 
+This line creates a variable called \emph{i} and sets it to 0. Note the lack of spaces! Variable assignment statements in bash cannot have spaces before or after the equals sign. (Add in some spaces and see if you can figure out what goes wrong.)
+\item<2->
+\begin{lstlisting}
+for f in data_subject_*.json
+do
+...
+done
+\end{lstlisting} 
+This loop finds all files in the current directory which match the pattern, and assigns one to the variable \emph{f}, runs the body of the loop with that assignment, and then assigns the next file to \emph{f} and repeats. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+cp $f ../anonymized_data/data_subject_${i}.json
+\end{lstlisting} 
+This line copies the files \emph{\$f} to the new directory we created, and renames it \emph{data\_subject\_\$\{i\}.json}. Notice that when referencing a variable (\alert{but not when creating it or assigning to it!}), you put a \$ in front of its name. The brackets around the \emph{i} delimit the variable name. They aren't strictly necessary here, but can you think of a place they would be?
+\item<2->
+\begin{lstlisting}
+i=$((i+1))
+\end{lstlisting} 
+This line increments the variable \emph{i}. The \emph{\$((...))} are how you tell bash to do arithmetic. (Note there are many other ways this line could be written, bash does include operators such as \emph{+=} and \emph{++} that you may be familiar with from other languages.)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{lstlisting}[title=anonymize.sh]
+#!/bin/bash
+mkdir ../anonymized_data/
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+Putting it all together, this script makes a new directory, loops through the data files in the current directory and creates a copy of each in the new directory with the subject identifier replaced with an anonymous ID number.
+\end{frame}
+
+\begin{frame}[fragile]{Files, for loops, and variables exercise}
+\begin{lstlisting}[title=anonymize.sh]
+#!/bin/bash
+mkdir ../anonymized_data/
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+Using this code as a guide, try to write (and test!) a script that loops through all text files in the current directory and prints their name and their first line. (Hint: check out the commands \emph{echo} and \emph{head}, you can use \emph{man} to find out more about them, e.g. \emph{man echo}.) 
+\end{frame}
+
+\begin{frame}[fragile]{Files, for loops, and variables exercise}
+Here's one possible answer:
+\begin{lstlisting}[title=text\_preview.sh]
+#!/bin/bash
+for f in *.txt
+do
+    echo $f
+    head -n 1 $f
+done
+\end{lstlisting}
+\end{frame}
 
 \begin{frame}
 \frametitle{Group 2}
