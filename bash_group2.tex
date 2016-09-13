@@ -4,12 +4,12 @@
 \usepackage{listings}
 \usepackage{hyperref}
 \lstset{language=bash,
-    morekeywords={in},
+    morekeywords={in,man},
     basicstyle=\ttfamily,
     commentstyle=\color{red},
     keywordstyle=\color{blue},
-    literate={\$}{{\textcolor{purple}{\$}}}1,
-    moredelim=[s][\color{purple}]{\{}{\}},
+    moredelim=[s][\color{purple}]{\$}{\ },
+    moredelim=[s][\color{purple}]{\$\{}{\}},
     numbers=none,
     frame=single}
 \usepackage{verbatim}
@@ -275,20 +275,54 @@ sed s/\\t/,/g $f > ${f%.tsv}.csv
 \end{lstlisting} 
 There's a lot going on in this line.
 \begin{itemize}
-    \item<2-> \lstinline|sed s/\\t/,/g $f| invokes the command \emph{sed} (stream editor) on the file \emph{\$f} to replace tabs with commas.
-    \item<3-> \lstinline|>| is an operator which redirects the output stream from sed. We won't have time to talk about streams in detail, but what \lstinline|>| basically does is take output from the thing on the left (that would normally be printed) and save it to the file on the right. (Try running \\\lstinline|echo Hello world! > this\_is\_a\_test.txt| to see an example.)
+    \item<2-> \lstinline|sed s/\\t/,/g $f| invokes the command \emph{sed} (stream editor) on the file \emph{\$f} to replace tabs with commas, and then outputs the result.
+    \item<3-> \lstinline|>| is an operator which redirects the output stream from sed. We won't have time to talk about streams in detail, but what \lstinline|>| basically does is take output from the thing on the left (that would normally be printed) and save it to the file on the right. (Try running \\\lstinline|echo Hello world! > this_is_a_test.txt| to see an example.)
     \item<4-> \lstinline|${f%.tsv}.csv| uses some of bash's fancy variable access abilities to get the filename but remove the .tsv extension, and then gives it a .csv extension instead. (\% removes the pattern following it from the end of the variable's value.)
 \end{itemize} 
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Group 2}
-\begin{enumerate}
-\item \textbf{directories/files:} Quick review as necessary
-\item \textbf{streams/piping:} Review as necessary \textit{cat,$>$,$>>$,$|$,tee}
-\item \textbf{servers/ssh:} \textit{ssh,scp,...?}
-\item \textbf{scripts/control flow:} \textit{for,if,source}
-\end{enumerate}
+\begin{frame}[fragile]{Conditionals, arguments, and streams exercise}
+\begin{lstlisting}[basicstyle=\small]
+#!/bin/bash
+if [ ! -e ${1}/*.tsv ]
+then
+    echo Exiting, no .tsv files found in $1
+    exit 1
+fi 
+for f in ${1}/*.tsv
+do
+    sed s/\\t/,/g $f > ${f%.tsv}.csv
+done
+\end{lstlisting}
+You might want to add several features, such as: 
+\begin{itemize}
+\item distinguishing between a directory which does not exist and a directory which does exist but doesn't have .tsv files
+\item having a default directory (such as the current working directory) if no argument is supplied
+\end{itemize}
+Try to modify the above code to include one or both of these (hint: check out the variable \$\#, and read \lstinline|man test| for the comparison operators). 
+\end{frame}
+
+\begin{frame}[fragile]{Conditionals, arguments, and streams exercise}
+A possible solution for both:
+\begin{lstlisting}[basicstyle=\small]
+#!/bin/bash
+if [ $# -gt 0 ]; then
+    if [ ! -d "$1" ]; then
+        echo Exiting, $1 is not a directory!
+        exit 1
+    fi
+    translation_dir=$1
+else
+    translation_dir=.
+fi
+if [ ! -e ${translation_dir}/*.tsv ]; then
+    echo Exiting, no .tsv files found in $1
+    exit 1
+fi 
+for f in ${translation_dir}/*.tsv; do
+    sed s/\\t/,/g $f > ${f%.tsv}.csv
+done
+\end{lstlisting}
 \end{frame}
 \end{document}
