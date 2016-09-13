@@ -217,6 +217,71 @@ done
 \end{lstlisting}
 \end{frame}
 
+\subsection{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+Here's an example of a script that will convert tab-separated value files to comma-separated. It has a few fancier features than the previous script: it takes as an argument the directory to convert files in, and performs some basic error-handling.
+\begin{lstlisting}[title=tsv\_to\_csv.sh]
+#!/bin/bash
+if [ ! -e ${1}/*.tsv ]
+then
+    echo Exiting, no .tsv files found in $1
+    exit 1
+fi 
+for f in ${1}/*.tsv
+do
+    sed s/\\t/,/g $f > ${f%.tsv}.csv
+done
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+if [ ! -e ${1}/*.tsv ]
+then
+...
+fi
+\end{lstlisting} 
+This construct is a conditional, it only executes the enclosed code under the condition specified on the first line. What's the condition? First, you'll notice that \$\{1\} is a variable we haven't defined. (In fact, you can't define a variable whose name starts with a number.) That's because \$1 refers to the first argument passed to this script on the command line when it was run. The \emph{-e} checks if something exists (as a file), and the \emph{!}, negates the value of whatever expression comes after it. Thus, the code in this chunk only executes if no TSV files exist in the directory that was passed.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+echo Exiting, no .tsv files found in $1
+exit 1
+\end{lstlisting} 
+The echo line tells the user what went wrong, and the exit line exits the script with exit code 1, which means something went wrong. (Exit codes are useful when one script calls another script or program, they allow graceful error handling.)
+\item<2->
+\begin{lstlisting}
+for f in ${1}/*. tsv
+do
+...
+done
+\end{lstlisting}
+Much like the \emph{for} loop we used previously, but loops over .tsv files in the directory \$1.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+sed s/\\t/,/g $f > ${f%.tsv}.csv
+\end{lstlisting} 
+There's a lot going on in this line.
+\begin{itemize}
+    \item<2-> \lstinline|sed s/\\t/,/g $f| invokes the command \emph{sed} (stream editor) on the file \emph{\$f} to replace tabs with commas.
+    \item<3-> \lstinline|>| is an operator which redirects the output stream from sed. We won't have time to talk about streams in detail, but what \lstinline|>| basically does is take output from the thing on the left (that would normally be printed) and save it to the file on the right. (Try running \\\lstinline|echo Hello world! > this\_is\_a\_test.txt| to see an example.)
+    \item<4-> \lstinline|${f%.tsv}.csv| uses some of bash's fancy variable access abilities to get the filename but remove the .tsv extension, and then gives it a .csv extension instead. (\% removes the pattern following it from the end of the variable's value.)
+\end{itemize} 
+\end{itemize}
+\end{frame}
+
 \begin{frame}
 \frametitle{Group 2}
 \begin{enumerate}
