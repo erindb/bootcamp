@@ -11,6 +11,9 @@
     moredelim=[s][\color{purple}]{\$}{\ },
     moredelim=[s][\color{purple}]{\$\{}{\}},
     numbers=none,
+    showstringspaces=false,
+    breaklines=true,
+    postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}},
     frame=single}
 \usepackage{verbatim}
 
@@ -33,13 +36,13 @@
 
 \section{What are we bashing and why?}
 \begin{frame}{What are we bashing and why?}
-We assume that you have come in to this group with some knowledge of basic shell use (\emph{ls, mv, ...}). We'll discuss:
+We assume that you have come in to this group with some knowledge of basic shell use (\emph{ls, mv, ...}). We'll discuss:\\
+\only<1>{\begin{center}\includegraphics[width = 0.5\textwidth]{images/caveman.png}\end{center}}
 \begin{itemize}
-    \item<1-> A bit about Stanford's computing cluster resources, remind you how to access them with \emph{ssh} \& \emph{scp}, and show you how simple hosting websites on them is. 
-    \item<2-> Shell scripting (in a necessarily shallow way, since we only have part of an hour and long textbooks can be written on the subject). 
+    \item<2-> A bit about Stanford's computing cluster resources, remind you how to access them with \emph{ssh} \& \emph{scp}, and show you how simple hosting websites on them is. 
+    \item<3-> Shell scripting (in a necessarily shallow way, since we only have part of an hour and long textbooks can be written on the subject). 
 \end{itemize}
 \begin{center}
-\only<1>{\vspace{-12em}\includegraphics[width = 0.5\textwidth]{images/caveman.png}\vspace{-2.66em}}
 \end{center}
 \end{frame}
 
@@ -108,14 +111,14 @@ Unfortunately Stanford's servers do not allow public key authentication for logi
 \begin{itemize}
 \item<1-> One of the main reasons bash scripting is useful is that you can arrange commands into scripts, which can be used repeatedly (if you have a frequent task you do like converting data files, etc.). 
 \item<2-> This allows you to be lazy (you don't have to do things manually).
-\item<3-> It can also make your research more reproducible (if you're trying to do the same operation on a bunch of files, a human might miss a file or apply the operation twice or something).
+\item<3-> Automation with a script that can be used again is also a better research practice (if you're trying to do the same operation on a bunch of files, you might miss a file or apply the operation twice, and when you look back while writing the paper, you won't remember what you did).
 \end{itemize}
 \end{frame}
 
 
 \subsection{Anonymizing participants (files, for loops, and variables)}
 \begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
-Here's a simple script I wrote to create copies of some data files with the participants identifier replaced with an integer. 
+Here's a simple script that creates copies of some data files with the participants identifier replaced with an integer. 
 \begin{lstlisting}[title=anonymize.sh]
 #!/bin/bash
 mkdir ../anonymized_data/
@@ -325,4 +328,83 @@ for f in ${translation_dir}/*.tsv; do
 done
 \end{lstlisting}
 \end{frame}
+
+\begin{frame}[fragile]{Backup script (SSH review, more streams)}
+Here's a simple script to back up important files to FarmShare (this is just an example, note that GitHub, which you'll learn about later, provides a better way of backing up your work in many cases). 
+\begin{lstlisting}[title=backup.sh]
+#!/bin/bash
+today=$(date +%F)
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script (SSH review, more streams)}
+\begin{itemize}
+\item
+\begin{lstlisting}
+today=$(date +%F)
+\end{lstlisting}
+This creates a variable called today, and stores the date in it. the \lstinline|$(...)| essentially tells bash to run the commands inside the parentheses and then stick the output into the rest of the line (i.e. save the output to the today variable here). 
+\item
+\begin{lstlisting}
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+\end{lstlisting}
+Creates more variables, one for folder to back up, and one for server + user information.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script (SSH review, more streams)}
+\begin{itemize}
+\item
+\begin{lstlisting}
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+\end{lstlisting}
+This command (note: this is one line broken to fit) compresses the \lstinline|$tobackup| folder and saves it to the \lstinline|$server|. In detail: 
+\begin{itemize}
+    \item \lstinline|tar czf - $tobackup| compresses the \lstinline|$tobackup| directory and passes the result to the stdout stream
+    \item \lstinline!|! the \lstinline!|! is called a pipe. It takes the stdout stream and redirects it as input to the following command. 
+    \item \lstinline|ssh $server ...| logs in to \lstinline|$server| using ssh, and then runs the commands that follow
+    \item \lstinline|'( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'| The quotes around everything except \lstinline|${today}| tell your computer to not run these commands, instead give them to ssh to run on the server. The \lstinline|cat > '${today}'.tar.gz| part tells the server to take the input it's given (from the pipe above) and save it out to the named file.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script exercise}
+\begin{lstlisting}
+#!/bin/bash
+today=$(date +%F)
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+\end{lstlisting}
+You might also want the script to remove the backup files older than some relative date (e.g. a week ago.) Try to add this functionality. \alert{(Be very careful testing scripts that contain \lstinline|rm|. Use \lstinline|rm -i| to prompt before removing each file.)} (Hint: remember you can use \lstinline|ssh $server  '(...)'| to pass commands to the server. You can pass filenames that you get from another command to \lstinline|rm| using the \lstinline|$(...)| syntax of above. To find files that are older than some date, check out the \lstinline|find| command, and its flags like \lstinline|-mtime|.)
+\end{frame}
+
+\begin{frame}[fragile]{Backup script excercise}
+One possible answer:
+\begin{lstlisting}[title=backup.sh]
+#!/bin/bash
+today=$(date +%F)
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+ssh $server '(rm -i $(find ~/Documents/backup_files/*.tar.gz -mtime +7) )'
+\end{lstlisting}
+(This throws a weird message when there are no old backup files to remove, how could we fix that?)
+\end{frame}
+
+\begin{frame}{Further information}
+\begin{itemize}
+\item \textbf{Detailed cheatsheet:} {\color{blue} \url{https://gist.github.com/LeCoupa/122b12050f5fb267e75f}}
+\item \textbf{Advanced Bash scripting guide:}  {\color{blue} \url{http://tldp.org/LDP/abs/html/}}
+\end{itemize}
+\begin{center}
+\includegraphics[width = 0.8\textwidth]{images/thatsallfolks.png}
+\end{center}
+
+\end{frame}
+
 \end{document}
