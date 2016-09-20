@@ -320,7 +320,7 @@ else
     translation_dir=.
 fi
 if [ ! -e ${translation_dir}/*.tsv ]; then
-    echo Exiting, no .tsv files found in $1
+    echo Exiting, no .tsv files found in $translation_dir
     exit 1
 fi 
 for f in ${translation_dir}/*.tsv; do
@@ -330,7 +330,7 @@ done
 \end{frame}
 
 \begin{frame}[fragile]{Backup script (SSH review, more streams)}
-Here's a simple script to back up important files to FarmShare (this is just an example, note that GitHub, which you'll learn about later, provides a better way of backing up your work in many cases). 
+Here's a simple script to back up important files to FarmShare (this is just an example, note that GitHub, which you'll learn about later, provides a better place to back up your work in many cases). 
 \begin{lstlisting}[title=backup.sh]
 #!/bin/bash
 today=$(date +%F)
@@ -346,7 +346,7 @@ tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${tod
 \begin{lstlisting}
 today=$(date +%F)
 \end{lstlisting}
-This creates a variable called today, and stores the date in it. the \lstinline|$(...)| essentially tells bash to run the commands inside the parentheses and then stick the output into the rest of the line (i.e. save the output to the today variable here). 
+This creates a variable called today, and stores the date in it (the \lstinline|+%F| is an argument telling date what format to output). the \lstinline|$(...)| essentially tells bash to run the commands inside the parentheses and then stick the output into the rest of the line (i.e. save the output to the today variable here). 
 \item
 \begin{lstlisting}
 tobackup=~/to_backup
@@ -364,10 +364,10 @@ tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${tod
 \end{lstlisting}
 This command (note: this is one line broken to fit) compresses the \lstinline|$tobackup| folder and saves it to the \lstinline|$server|. In detail: 
 \begin{itemize}
-    \item \lstinline|tar czf - $tobackup| compresses the \lstinline|$tobackup| directory and passes the result to the stdout stream
-    \item \lstinline!|! the \lstinline!|! is called a pipe. It takes the stdout stream and redirects it as input to the following command. 
-    \item \lstinline|ssh $server ...| logs in to \lstinline|$server| using ssh, and then runs the commands that follow
-    \item \lstinline|'( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'| The quotes around everything except \lstinline|${today}| tell your computer to not run these commands, instead give them to ssh to run on the server. The \lstinline|cat > '${today}'.tar.gz| part tells the server to take the input it's given (from the pipe above) and save it out to the named file.
+    \item<1-> \lstinline|tar czf - $tobackup| compresses the \lstinline|$tobackup| directory and passes the result to the stdout stream
+    \item<2-> \lstinline!|! the \lstinline!|! is called a pipe. It takes the stdout stream and redirects it as input to the following command. 
+    \item<3-> \lstinline|ssh $server ...| logs in to \lstinline|$server| using ssh, and then runs the commands that follow
+    \item<4-> \lstinline|'( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'| The quotes around everything except \lstinline|${today}| tell your computer to not run these commands, instead give them to ssh to run on the server. The \lstinline|cat > '${today}'.tar.gz| part tells the server to take the input it's given (from the pipe above) and save it out to the named file.
 \end{itemize}
 \end{itemize}
 \end{frame}
