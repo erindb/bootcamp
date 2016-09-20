@@ -9,6 +9,7 @@
     commentstyle=\color{red},
     keywordstyle=\color{blue},
     moredelim=[s][\color{purple}]{\$}{\ },
+    moredelim=[l][\color{purple}]{\$(},
     moredelim=[s][\color{purple}]{\$\{}{\}},
     numbers=none,
     showstringspaces=false,
@@ -107,11 +108,15 @@ Unfortunately Stanford's servers do not allow public key authentication for logi
 \end{frame}
 
 \section{Being lazy (a hands-on intro to shell scripting)}
-\begin{frame}{Being lazy (a hands-on intro to shell scripting)}
+\begin{frame}[fragile]{Being lazy (a hands-on intro to shell scripting)}
 \begin{itemize}
 \item<1-> One of the main reasons bash scripting is useful is that you can arrange commands into scripts, which can be used repeatedly (if you have a frequent task you do like converting data files, etc.). 
 \item<2-> This allows you to be lazy (you don't have to do things manually).
 \item<3-> Automation with a script that can be used again is also a better research practice (if you're trying to do the same operation on a bunch of files, you might miss a file or apply the operation twice, and when you look back while writing the paper, you won't remember what you did).
+\item<4-> To download some scripts to get you started, run the following in your terminal (remove the linebreaks):  
+\begin{lstlisting}
+wget https://github.com/lampinen/bootcamp/raw/master/scripts.tar.gz; tar xzf scripts.tar.gz
+\end{lstlisting}
 \end{itemize}
 \end{frame}
 
@@ -225,7 +230,8 @@ done
 Here's an example of a script that will convert tab-separated value files to comma-separated. It has a few fancier features than the previous script: it takes as an argument the directory to convert files in, and performs some basic error-handling.
 \begin{lstlisting}[title=tsv\_to\_csv.sh]
 #!/bin/bash
-if [ ! -e ${1}/*.tsv ]
+these_files=(${1}/*.tsv)
+if [ ! -e "${these_files[0]}" ]
 then
     echo Exiting, no .tsv files found in $1
     exit 1
@@ -242,12 +248,17 @@ done
 \begin{itemize}
 \item<1->
 \begin{lstlisting}
-if [ ! -e ${1}/*.tsv ]
+these_files=(${1}/*.tsv)
+\end{lstlisting}
+This creates a variable called these\_files, and stores in it the tsv files in the variable \lstinline|$1|. You'll notice that we haven't defined this variable. (In fact, you can't.) That's because \lstinline|$1| refers to the first argument passed to this script on the command line when it was run.
+\item<2->
+\begin{lstlisting}
+if [ ! -e "${these_files[0]}" ]
 then
 ...
 fi
 \end{lstlisting} 
-This construct is a conditional, it only executes the enclosed code under the condition specified on the first line. What's the condition? First, you'll notice that \$\{1\} is a variable we haven't defined. (In fact, you can't define a variable whose name starts with a number.) That's because \$1 refers to the first argument passed to this script on the command line when it was run. The \emph{-e} checks if something exists (as a file), and the \emph{!}, negates the value of whatever expression comes after it. Thus, the code in this chunk only executes if no TSV files exist in the directory that was passed.
+This construct is a conditional, it only executes the enclosed code under the condition specified in the \lstinline|[...]|. What's the condition? First,  The \emph{-e} checks if the first of \lstinline|$these_files| exists (as a file), and the \emph{!}, negates the value of whatever expression comes after it. Thus, the code in this chunk only executes if no TSV files exist in the directory that was passed.
 \end{itemize}
 \end{frame}
 
@@ -261,7 +272,7 @@ exit 1
 The echo line tells the user what went wrong, and the exit line exits the script with exit code 1, which means something went wrong. (Exit codes are useful when one script calls another script or program, they allow graceful error handling.)
 \item<2->
 \begin{lstlisting}
-for f in ${1}/*. tsv
+for f in ${1}/*.tsv
 do
 ...
 done
