@@ -1,0 +1,112 @@
+---
+title: "bootstrapped_t_test.Rmd"
+author: "AndrewLampinen"
+date: "September 20, 2016"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+```
+
+Let's write a simple function to save us work in the future! This function will bootstrap a $t$-test, but we'll build up to that. First, lets start by examining R's built-in function which runs a standard $t$-test. Give it a try:
+
+```{r}
+t.test(,)
+```
+
+Notice what this function does. It takes two vectors of data, corresponding to two conditions, and runs a standard $t$-test on them. We're going to ask you to build a similar function that takes two vectors of data and bootstraps a $t$-test on them, to get an idea of the robustness of our effect.
+
+First, let's create a more basic function.
+
+```{r}
+sayhi = function() {
+  print("Hi!")
+}
+```
+
+This creates a function called sayhi. Try running the function and see what happens!
+
+```{r}
+sayhi()
+```
+
+Now try just running the code that's inside the function
+
+```{r}
+print("Hi!")
+```
+
+See, running a function is (mostly) just like running the code inside it. Functions just help keep your code organized, and let you reuse it. For example, instead of manually writing out the code for a $t$-test every time you run one, `t.test` which we used above lets you reuse the code someone else wrote.
+
+However our first function does is say "Hi!" That's endearing, but not very interesting. As a first step to make it do something more interesting, let's give it some arguments (some input for the function to do something with).
+
+```{r}
+say.some.things = function(thing1,thing2) {
+  print(thing1)
+  print(thing2)
+}
+```
+
+When you want your function to take arguments, you put them in the parentheses in the function definition. Here, we created two arguments, thing1 and thing2, and then we have the function print them. For example:
+
+```{r}
+say.some.things("Hi!","How are you?")
+```
+
+We also might want our function to give its output to some other part of the program, instead of printing it. That way we can use that value somewhere else in the code. We do that by telling the function to `return` a value. For example:
+
+```{r}
+returnhi = function() {
+  return("Hi!")
+}
+
+x = returnhi()
+x
+replicate(10,returnhi())
+```
+
+See, now we can use that hi in various other places, like making a bunch of copies of it.
+
+Now we know all we need to about functions, so let's get back to the task of writing a bootstrap $t$-test function. First, write the skeleton of a basic function called bootstrap.t.test that will take two arguments, for the two data vectors. Leave the rest of the function blank for now.
+
+```{r}
+#Your code here
+```
+
+The way a bootstrap works is that we're going to run a lot of $t$-tests, and compare the results. Of course, it wouldn't be very helpful to run all the tests on the same data, so we're going to *simulate* new data each time, by taking random samples of the original data using the `sample` function. Try out the sample function now!
+
+```{r}
+sample(d[d$condition == 1,]$score,20,replace=TRUE)
+```
+
+The sample function takes a vector, and returns a sample from it (of the size you specify). With `replace=TRUE`, samples may include the same element multiple times. This means that if we take a sample the same size as our original data, the sample probably won't be the same as the original data. These samples will be the new datasets that we run our $t$-tests on. Go ahead and copy your function skeleton above down here, and add code to draw samples from each of the vectors passed in.
+
+```{r}
+#Your code here
+```
+
+Finally, add code to run `t.test` on the samples you just generated, and `return` the t value from above. (If you do `results = t.test(...)`, you can access the t value by itself by doing `results$statistic`). 
+
+Now your function should work! Try running it a few times on the data to make sure. You should get a different $t$-value each time, because of the random sampling you built in. 
+
+```{r}
+bootstrap.t.test(a,b)
+```
+
+If it works, congratulations! If not, see if you can figure out what's wrong or ask for help.
+
+Now we're ready for the last step -- running it many times! Go ahead and run the following once your function is working:
+
+```{r}
+bootstrap_results = data.frame(t=replicate(10000,bootstrap.t.test(a,b)))
+```
+
+Then we can see what the distribution of t-values we got looks like, and how the t-value we got using `t.test` compares.
+
+```{r}
+ggplot(data=bootstrap_results,aes(t))+
+  geom_histogram()+
+  geom_vline(aes(xintercept=t.test(a,b)$statistic,color="original t value"))+
+  theme_bw()
+```
