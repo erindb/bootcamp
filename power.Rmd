@@ -1,0 +1,177 @@
+---
+title: "Replication Crisis + Power"
+author: "Dan Birman"
+date: "September 20, 2016"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+stroop_data = read.csv("https://github.com/dbirman/bootcamp-data/raw/master/stroop.csv")
+```
+
+Replication Crisis + Power
+------------
+
+You have almost certainly heard about the replication crisis and how medicine, neuroscience, psychology, and many other fields are plagued with studies that don't replicate. What's going on? One problem is that the average study in our field is designed with a low statistical power. This means that even if the study is looking for a real effect, it's unlikely to find it--and it also inflates the likelihood that if you find an effect it's actually a false positive. We're going to work through the idea of power in this worksheet and write some functions to simulate it.
+
+For our example we'll focus on the same t-test you performed earlier. Instead of asking whether two sets of data are different, or not, let's now ask a more abstract question: how often do we expect to end up with data that we *think* is different, given that the effect underneath is present or absent? 
+
+Look at the plot below. In green we will plot the reaction times for congruent trials, and in red we will plot reaction times for incongruent trials.
+
+```{r}
+ggplot(stroop_data,aes(x=rt,fill=condition)) +
+  geom_histogram()
+```
+
+Note that there's a tiny bit of cleaning up to do here, because there shouldn't be any data at zero... These are probably people who were holding the response key down as the trial started.
+
+```{r}
+stroop_data = stroop_data %>% filter(rt>0)
+```
+
+Now we'll do this again but summarising the data under the assumption of normality. The data is obviously non-normal so this is *not a good thing to do!!*. Fortunately, this demo is all about bootstrapping, and we won't make any assumptions about normality in our actual analysis. So for the purpose of exposition this step simplifies the visualization as we play around with the concept of power.
+
+```{r}
+cond_means = stroop_data %>% group_by(condition) %>% summarise(mu=mean(rt),sd=sd(rt))
+
+ggplot(data.frame(x = c(0, 1500)), aes(x)) +
+  stat_function(fun = dnorm, args = list(mean = cond_means$mu[1], sd = cond_means$sd[1]), color='#b2ffb2', size=1) +
+  stat_function(fun = dnorm, args=list(mean=cond_means$mu[2],sd=cond_means$sd[2]), color='#ffb2b2',size=1) +
+  geom_vline(aes(xintercept=0),color='black',size=1,linetype='dashed') +
+  theme_bw()
+```
+
+Cool. So what's the idea behind power? Well--first of all you need to recognize that the data we're plotting here is a *sample*. It's only one possible sample, we could in fact have gotten a very different result. If we took many samples, the mean RT for each group would shift around slightly. When we compute the mean and variance of our sample it gives us an idea of what the *true* mean is (if it exists). So let's imagine for a moment that the true mean RT for congruent trials is actually 500 ms, and incongruent trials is 1000 ms, as follows. Before plotting you need to take a moment to think about what the variance means here--this isn't the variance across subjects or across trials, it's the variance across samples. I've set it to be 100 (arbitrarily).
+
+```{r}
+ggplot(data.frame(x = c(0, 1500)), aes(x)) +
+  stat_function(fun = dnorm, args = list(mean = 500, sd = 100), color='#b2ffb2', size=1) +
+  stat_function(fun = dnorm, args=list(mean=1000, sd=100), color='#ffb2b2',size=1) +
+  geom_vline(aes(xintercept=0),color='black',size=1,linetype='dashed') +
+  theme_bw()
+```
+
+Okay. Now we can talk about power. What's the probability that if these are the distributions of *possibl
+
+A simple bootstrap function
+----------------------------
+
+Let's write a simple function to save us work in the future! This function will bootstrap a $t$-test, but we'll build up to that. First, lets start by examining R's built-in function which runs a standard $t$-test on the two conditions. Give it a try:
+
+```{r}
+stroop_congruent_rts = stroop_data[stroop_data$condition == "congruent",]$rt
+stroop_incongruent_rts = stroop_data[stroop_data$condition == "incongruent",]$rt
+t.test(stroop_congruent_rts,stroop_incongruent_rts)
+```
+
+Notice what this function does. It takes two vectors of data, corresponding to two conditions, and runs a standard $t$-test on them. We're going to ask you to build a similar function that takes two vectors of data and bootstraps a $t$-test on them, to get an idea of the robustness of the result.
+
+First, let's create a more basic function.
+
+```{r}
+sayhi = function() {
+  print("Hi!")
+}
+```
+
+This creates a function called sayhi. Try running the function and see what happens!
+
+```{r}
+sayhi()
+```
+
+Now try just running the code that's inside the function
+
+```{r}
+print("Hi!")
+```
+
+See, running a function is (mostly) just like running the code inside it. Functions just help keep your code organized, and let you reuse it. For example, instead of manually writing out the code for a $t$-test every time you run one, `t.test` which we used above lets you reuse the code someone else wrote.
+
+However our first function does is say "Hi!" That's endearing, but not very interesting. As a first step to make it do something more interesting, let's give it some arguments (some input for the function to do something with).
+
+```{r}
+say.some.things = function(thing1,thing2) {
+  print(thing1)
+  print(thing2)
+}
+```
+
+When you want your function to take arguments, you put them in the parentheses in the function definition. Here, we created two arguments, thing1 and thing2, and then we have the function print them. For example:
+
+```{r}
+say.some.things("Hi!","How are you?")
+```
+
+We also might want our function to give its output to some other part of the program, instead of printing it. That way we can use that value somewhere else in the code. We do that by telling the function to `return` a value. For example:
+
+```{r}
+returnhi = function() {
+  return("Hi!")
+}
+
+x = returnhi()
+x
+replicate(10,returnhi())
+```
+
+See, now we can use that hi in various other places, like making a bunch of copies of it.
+
+Now we know all we need to about functions, so let's get back to the task of writing a bootstrap $t$-test function. First, write the skeleton of a basic function called bootstrap.t.test that will take two arguments, for the two data vectors. Leave the rest of the function blank for now.
+
+```{r}
+#Your code here
+```
+
+The way a bootstrap works is that we're going to run a lot of $t$-tests, and compare the results. Of course, it wouldn't be very helpful to run all the tests on the same data, so we're going to *simulate* new data each time, by taking random samples of the original data using the `sample` function. Try out the sample function now!
+
+```{r}
+sample(stroop_congruent_rts,10,replace=TRUE)
+```
+
+The sample function takes a vector, and returns a sample from it (of the size you specify). With `replace=TRUE`, samples may include the same element multiple times. This means that if we take a sample the same size as our original data, the sample probably won't be the same as the original data. These samples will be the new datasets that we run our $t$-tests on. Go ahead and copy your function skeleton above down here, and add code to draw samples from each of the vectors passed in. (Make sure the samples you generate are the same size as the vectors you passed in, you might want to use functions like `length` for that.)
+
+```{r}
+#Your code here
+bootstrap.t.test = function(x,y) {
+  x1 = sample(x,length(x),replace=TRUE)
+  y1 = sample(y,length(y),replace=TRUE)
+  results = t.test(x1,y1)
+  return(results$statistic)
+}
+```
+
+Finally, add code to your function to run `t.test` on the samples you generated, and `return` the t value from above. (If you do `results = t.test(...)`, you can access the t value by itself by doing `results$statistic`). 
+
+Now your function should work! Try running it a few times on the data to make sure. You should get a different $t$-value each time, because of the random sampling you built in. 
+
+```{r}
+bootstrap.t.test(stroop_congruent_rts,stroop_incongruent_rts)
+```
+
+If it works, congratulations! If not, see if you can figure out what's wrong or ask for help.
+
+Now we're ready for the last step -- running it many times! Go ahead and run the following once your function is working (it may take a bit to run):
+
+```{r}
+bootstrap_results = data.frame(t=replicate(10000,bootstrap.t.test(stroop_congruent_rts,stroop_incongruent_rts)))
+```
+
+Then we can see what the distribution of t-values we got looks like, and how the t-value we got using `t.test` compares.
+
+```{r}
+ggplot(data=bootstrap_results,aes(t))+
+  geom_histogram()+
+  geom_vline(aes(xintercept=t.test(stroop_congruent_rts,stroop_incongruent_rts)$statistic,color="original t value"))+
+  theme_bw()
+```
+
+We can use dplyr to easily get some statistics on the distribution of our bootstrap $t$-values:
+
+```{r}
+bootstrap_summary = bootstrap_results %>% summarize(t_mean = mean(t),t_std = sd(t))
+bootstrap_summary
+```
