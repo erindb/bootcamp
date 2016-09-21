@@ -15,7 +15,7 @@ stroop_data = read.csv("https://github.com/dbirman/bootcamp-data/raw/master/stro
 Manipulating data with dplyr (for group 2)
 ------------
 
-Dplyr is a convenient library for cleanly and clearly manipulating data. We'll use it to take a quick look at the data, you'll learn more about it tomorrow. it consists of a few functions and a pipe operator `%>%` much like the one you saw in the bash tutorial. For example, here's how you might find out the means and standard deviations of the reaction times in each condition of the Stroop task:
+Dplyr is a convenient library for cleanly and clearly manipulating data. We'll use it to take a quick look at the data, you'll learn more about it tomorrow. it consists of a few functions and a pipe operator `%>%` much like the one you may have seen in the bash tutorial. For example, here's how you might find out the means and standard deviations of the reaction times in each condition of the Stroop task:
 
 ```{r}
 stroop_data %>% 
