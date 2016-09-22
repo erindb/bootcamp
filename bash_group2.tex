@@ -299,7 +299,8 @@ There's a lot going on in this line.
 \begin{frame}[fragile]{Conditionals, arguments, and streams exercise}
 \begin{lstlisting}[basicstyle=\small]
 #!/bin/bash
-if [ ! -e ${1}/*.tsv ]
+these_files=(${1}/*.tsv)
+if [ ! -e "${these_files[0]}" ]
 then
     echo Exiting, no .tsv files found in $1
     exit 1
