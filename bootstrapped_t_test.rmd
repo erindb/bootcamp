@@ -25,7 +25,7 @@ stroop_data %>%
 
 But if you look at the data you might notice that some rt values are -1, probably indicating no response before the time limit. We definitely want to remove these before we look at the data, so let's fix that. We also might want to compare across correct and incorrect responses:
 
-```{r}
+```{r filter_and_show_stroop_rts}
 stroop_data %>% 
   filter(rt > 0) %>%
   group_by(condition,correct) %>%
@@ -122,12 +122,6 @@ The sample function takes a vector, and returns a sample from it (of the size yo
 
 ```{r}
 #Your code here
-bootstrap.t.test = function(x,y) {
-  x1 = sample(x,length(x),replace=TRUE)
-  y1 = sample(y,length(y),replace=TRUE)
-  results = t.test(x1,y1)
-  return(results$statistic)
-}
 ```
 
 Finally, add code to your function to run `t.test` on the samples you generated, and `return` the t value from above. (If you do `results = t.test(...)`, you can access the t value by itself by doing `results$statistic`). 
