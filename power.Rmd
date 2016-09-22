@@ -29,7 +29,7 @@ ggplot(stroop_data,aes(x=rt,fill=condition)) +
 Note that there's a tiny bit of cleaning up to do here, because there shouldn't be any data at zero... These are probably people who were holding the response key down as the trial started.
 
 ```{r}
-stroop_data = stroop_data %>% filter(rt>0)
+# your code here, use dplyr/tidyr to "filter" out trials where the rt was zero or negative
 ```
 
 Now we'll do this again but summarising the data under the assumption of normality. The data is obviously non-normal so this is *not a good thing to do!!*. Fortunately, this demo is all about bootstrapping, and we won't make any assumptions about normality in our actual analysis. So for the purpose of exposition this step simplifies the visualization as we play around with the concept of power.
@@ -54,124 +54,87 @@ ggplot(data.frame(x = c(0, 1500)), aes(x)) +
   theme_bw()
 ```
 
-Okay. Now we can talk about power. What's the probability that if these are the distributions of *possibl
-
-A simple bootstrap function
-----------------------------
-
-Let's write a simple function to save us work in the future! This function will bootstrap a $t$-test, but we'll build up to that. First, lets start by examining R's built-in function which runs a standard $t$-test on the two conditions. Give it a try:
+Okay. Now we can talk about power. What's the probability that if these are the distributions of *possible* sample means, we would think they were different? For a first pass let's imagine that these sample mean distributions are normal, which simplifies sampling from them because there is an existing random normal sampling function `rnorm`. We're going to write a function which will grab two samples, compute an effect size (difference between the samples), and return that.
 
 ```{r}
-stroop_congruent_rts = stroop_data[stroop_data$condition == "congruent",]$rt
-stroop_incongruent_rts = stroop_data[stroop_data$condition == "incongruent",]$rt
-t.test(stroop_congruent_rts,stroop_incongruent_rts)
+get2samples = function(mu1,sd1,mu2,sd2) {
+  # your code here
+  # get a sample using rnorm for each distribution
+  # compute the effect size (difference between samples)
+  # return the effect
+}
+
+simulation = data.frame(effect=replicate(10,get2samples(500,100,1000,100)))
 ```
 
-Notice what this function does. It takes two vectors of data, corresponding to two conditions, and runs a standard $t$-test on them. We're going to ask you to build a similar function that takes two vectors of data and bootstraps a $t$-test on them, to get an idea of the robustness of the result.
-
-First, let's create a more basic function.
+All right. It should be obvious if you look at the mean: `mean(simulation$effect)` that it basically always comes out positive. That means we would find that the incongruent RT is longer than the congruent RT, if the true effects were 500 ms apart. Note we haven't done any computation of p-values yet, we're just looking right now at how often the effect would go in the direction we expect, based on how we set up the problem. Let's check that for this dataset by making a REALLY large simulation.
 
 ```{r}
-sayhi = function() {
-  print("Hi!")
+simulation = data.frame(effect=replicate(10000,get2samples(500,100,1000,100)))
+# your code here: write a ggplot line that uses the simulation data.frame to plot a histogram of the effects
+```
+
+In this simulation, the effect would always be large and positive. Let's now refine our simulation based on the data we have access to. In computing power there are a few things we might want to know:
+
+ - How often will we get the direction of the effect correct?
+ - How often will we consider the effect statistically "significant" when it exists (hit), or when it does not exist (false positive)
+ 
+Etc...
+
+Let's look at just those two. What we're going to do is take the actual data we have and collect samples of increasing sizes. If we only had one trial, from one subject, what would be the likelihood of the above events coming out the way we expect? If we had 23000 trials, as we do here, what would be the likelihood of these events? Let's start with the direction of the effect.
+
+We'll write a function and a helper that, given a sampling size, computes 10,000 repeats of getting a congruent and an incongruent sample, getting their means, and checking the direction. It will return the percentage of times that the direction went the right way for that sample size.
+
+```{r}
+# separate out the RT data
+stroop_con_rts = stroop_data %>% filter(condition=='congruent') %>% select(rt) %>% .$rt
+stroop_inc_rts = stroop_data %>% filter(condition=='incongruent') %>% select(rt) %>% .$rt
+
+dirHelper = function(n,con_rts,inc_rts) {
+  # your code here, get a sample from each group
+  # compute the difference in samples
+  # if the difference is in the right direction, return 1, else 0
+}
+
+getDirectionPercentage = function(n,con_rts,inc_rts,reps) {
+  repeats = replicate(reps,dirHelper(n,con_rts,inc_rts))
+  return(sum(repeats)/reps)
 }
 ```
 
-This creates a function called sayhi. Try running the function and see what happens!
+Let's test this function out for a sample with one trial:
 
 ```{r}
-sayhi()
+getDirectionPercentage(1,stroop_con_rts,stroop_inc_rts,10000)
 ```
 
-Now try just running the code that's inside the function
+Cool, so if we only had two trials total, one congruent and one incongruent, we would expect to find that the incongruent one would be slower 66.6% of the time. Let's plot how this percentage increases as a function of sample size for this dataset.
 
 ```{r}
-print("Hi!")
-```
-
-See, running a function is (mostly) just like running the code inside it. Functions just help keep your code organized, and let you reuse it. For example, instead of manually writing out the code for a $t$-test every time you run one, `t.test` which we used above lets you reuse the code someone else wrote.
-
-However our first function does is say "Hi!" That's endearing, but not very interesting. As a first step to make it do something more interesting, let's give it some arguments (some input for the function to do something with).
-
-```{r}
-say.some.things = function(thing1,thing2) {
-  print(thing1)
-  print(thing2)
+sample_size = 1:100
+perc = c()
+for (i in sample_size) {
+  perc[i] = getDirectionPercentage(i,stroop_con_rts,stroop_inc_rts,10000)
 }
 ```
 
-When you want your function to take arguments, you put them in the parentheses in the function definition. Here, we created two arguments, thing1 and thing2, and then we have the function print them. For example:
-
 ```{r}
-say.some.things("Hi!","How are you?")
+# we separate into two code blocks so you can run the simulation above once, and then here you can plot it
+data = data.frame(samplesize=sample_size,percentage=perc)
+
+ggplot(data,aes(x=samplesize,y=percentage)) +
+  geom_point()
 ```
 
-We also might want our function to give its output to some other part of the program, instead of printing it. That way we can use that value somewhere else in the code. We do that by telling the function to `return` a value. For example:
+By the way, at this point it's good to mention that a lot of this can be parametrized using studied measures of effect size such as d-prime. D-prime is calculated as $(mu_{1}-mu_{2})/sd$, for our data set we can calculate it as follows:
 
 ```{r}
-returnhi = function() {
-  return("Hi!")
-}
-
-x = returnhi()
-x
-replicate(10,returnhi())
+mu_con = mean(stroop_con_rts)
+mu_inc = mean(stroop_inc_rts)
+joint_sd = sd(stroop_data$rt)
+dprime = (mu_inc-mu_con)/joint_sd
 ```
 
-See, now we can use that hi in various other places, like making a bunch of copies of it.
+A dprime of 0.5 is a "medium" effect. Note that we're computing effect size here using the variability across trials, i.e. as a "within-subject" effect: in other words for a given person, how much of a difference is there in their reaction time for congruent vs. incongruent. We could also use the variability across subjects if we were interested in talking about how subjects differed "between-subjects".
 
-Now we know all we need to about functions, so let's get back to the task of writing a bootstrap $t$-test function. First, write the skeleton of a basic function called bootstrap.t.test that will take two arguments, for the two data vectors. Leave the rest of the function blank for now.
-
-```{r}
-#Your code here
-```
-
-The way a bootstrap works is that we're going to run a lot of $t$-tests, and compare the results. Of course, it wouldn't be very helpful to run all the tests on the same data, so we're going to *simulate* new data each time, by taking random samples of the original data using the `sample` function. Try out the sample function now!
-
-```{r}
-sample(stroop_congruent_rts,10,replace=TRUE)
-```
-
-The sample function takes a vector, and returns a sample from it (of the size you specify). With `replace=TRUE`, samples may include the same element multiple times. This means that if we take a sample the same size as our original data, the sample probably won't be the same as the original data. These samples will be the new datasets that we run our $t$-tests on. Go ahead and copy your function skeleton above down here, and add code to draw samples from each of the vectors passed in. (Make sure the samples you generate are the same size as the vectors you passed in, you might want to use functions like `length` for that.)
-
-```{r}
-#Your code here
-bootstrap.t.test = function(x,y) {
-  x1 = sample(x,length(x),replace=TRUE)
-  y1 = sample(y,length(y),replace=TRUE)
-  results = t.test(x1,y1)
-  return(results$statistic)
-}
-```
-
-Finally, add code to your function to run `t.test` on the samples you generated, and `return` the t value from above. (If you do `results = t.test(...)`, you can access the t value by itself by doing `results$statistic`). 
-
-Now your function should work! Try running it a few times on the data to make sure. You should get a different $t$-value each time, because of the random sampling you built in. 
-
-```{r}
-bootstrap.t.test(stroop_congruent_rts,stroop_incongruent_rts)
-```
-
-If it works, congratulations! If not, see if you can figure out what's wrong or ask for help.
-
-Now we're ready for the last step -- running it many times! Go ahead and run the following once your function is working (it may take a bit to run):
-
-```{r}
-bootstrap_results = data.frame(t=replicate(10000,bootstrap.t.test(stroop_congruent_rts,stroop_incongruent_rts)))
-```
-
-Then we can see what the distribution of t-values we got looks like, and how the t-value we got using `t.test` compares.
-
-```{r}
-ggplot(data=bootstrap_results,aes(t))+
-  geom_histogram()+
-  geom_vline(aes(xintercept=t.test(stroop_congruent_rts,stroop_incongruent_rts)$statistic,color="original t value"))+
-  theme_bw()
-```
-
-We can use dplyr to easily get some statistics on the distribution of our bootstrap $t$-values:
-
-```{r}
-bootstrap_summary = bootstrap_results %>% summarize(t_mean = mean(t),t_std = sd(t))
-bootstrap_summary
-```
+Now finally, we can also compute the expected proportion of results that not only go in the right direction but are "statistically significant", i.e. the size of the effect in a given sample is sufficiently large. Often in psychology a cutoff is set at .05. In other words: is this effect large enough that we only expect to see it 5% of the time in an imagined world where this effect doesn't exist? If we get this far in the tutorial day, we will write this code individually!
