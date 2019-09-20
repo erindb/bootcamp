@@ -1,0 +1,598 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\lstset{language=bash,
+    morekeywords={in},
+    basicstyle=\ttfamily,
+    commentstyle=\color{red},
+    keywordstyle=\color{blue},
+    literate={\$}{{\textcolor{purple}{\$}}}1,
+    moredelim=[s][\color{purple}]{\{}{\}},
+    numbers=left,
+    frame=single}
+\usepackage{verbatim}
+
+\usetheme{Madrid}
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\title{Intro to BASH}
+\author{}
+\date{First Year Bootcamp, 2019}
+\frame{\titlepage}
+
+
+\section{What are we bashing and why?}
+\begin{frame}{What are we bashing and why?}
+\begin{itemize}
+    \item<1-> No violence involved, bash is a program!
+    \item<2-> bash (the name is an acronym for Bourne-Again SHell, don't ask) is a powerful command line interpreter that is the default on most Linux distros and OS X.
+    \item<3-> In other words, we're going back to the way people used to use computers in the old days, or the way that ``hackers'' use them on TV.
+    \item<4-> Why? Bash allows you to:
+	\begin{itemize}
+	    \item<4-> Simplify tasks that you could possibly do in other ways. Want to rename 1000 data files? Bash makes it (relatively) easy! 
+	    \item<5-> Access powerful tools like ssh and git that you otherwise couldn't. 
+	\end{itemize}
+\end{itemize}
+\begin{center}
+\only<1>{\vspace{-12em}\includegraphics[width = 0.5\textwidth]{images/caveman.png}\vspace{-2.66em}}
+\only<3>{\vspace{-5em}\includegraphics[width = 0.5\textwidth]{images/trinity.png}\vspace{-2.66em}}
+\end{center}
+\end{frame}
+\begin{frame}[fragile]{Opening bash}
+\begin{itemize}
+    \item<1-> \textbf{OS X/Linux:} Open terminal, bash is default shell
+    \item<1-> \textbf{Windows:} Go to Start $\rightarrow$ Git $\rightarrow$ Git Bash
+    \item<2-> You can get a list of commands by typing \emph{help} in the prompt and hitting enter.
+    \item<3-> You can learn more about a command or program by typing \emph{help \textit{command}} or \emph{man \textit{command}} (Note: \emph{man} doesn't work on windows, but you can always use google!)
+\end{itemize}
+\end{frame}
+
+\section{Where am I? (Directories)}
+\begin{frame}{Where am I? (Directories)}
+\begin{itemize}
+    \item<1-> Just like when you use explorer or finder to navigate on your computer, bash sees your files as organized into directories (folders). Whenever you use bash, you're always in a directory (your working directory). To find out what directory you're in right now, try typing \emph{pwd} (print working directory) in the prompt, and then hitting enter.
+    \item<2-> e.g. \textit{/Users/my-user-name/} (This is my "home" directory)
+    \item<3-> Did it print a directory name? Good! Now try typing \emph{ls} (list) into the prompt. This should list the directories and files that are within this directory. 
+    \item<4-> You can change to a new directory by typing \emph{cd} (change directory) followed by the directory name. For example, try \emph{cd $\sim$}. (\emph{$\sim$} is a special character that refers to your home directory, usually \textit{/home/your-user-name/}.) 
+    \item<5-> Now try using \emph{ls} again, and then using \emph{cd} to enter one of the directories you see (perhaps Documents, Desktop, Downloads or similar, depending how your OS is set up).
+\end{itemize}
+\only<1>{\begin{center}\vspace{-12em}\includegraphics[width = 0.5\textwidth]{images/Where-the-fck-am-I.png}\vspace{0.5em}\end{center}}
+\end{frame}
+
+\begin{frame}{Arguments and flags for \emph{ls}}
+\begin{itemize}
+    \item<1-> What if you want to list the contents of a directory other than your current one? In that case you can just give that directory's path as an \alert{argument} to \emph{ls}. For example: \emph{ls /home} will tell you what's in the directory \textit{/home}, no matter where you are.
+    \item<2-> There are various \alert{flags} (usually a - followed by a single character, or a -- followed by a word) you can pass to \emph{ls}. For example, try \emph{ls -l} (more information every item on its own line), \emph{ls -a} (lists hidden files as well)
+\end{itemize}
+\begin{block}{Arguments \& flags}<3-> 
+Most commands we will talk about can take many different kinds of arguments and flags to alter their function, don't forget to use \emph{man} and \emph{help} to find out more about them! Try it now with \emph{man ls}. 
+\end{block}
+\end{frame}
+
+\begin{frame}{Creating, moving, and destroying directories}
+\begin{itemize}
+    \item<1-> Maybe you want to create a new directory to house all your exciting new grad stuff, like the pictures that random tourists take of you. To do this, type \emph{mkdir} (make directory) followed by the name for the directory, e.g. \emph{mkdir exciting-grad-school-stuff} 
+    \item<2-> Maybe you changed your mind about what to call it though, so you want to change it to \textit{boring-grad-school-stuff}, and also move it somewhere else. Not to worry! You can use \emph{mv} (move) to rename the directory, or to move it to a new place. For example, you could use \emph{mv exciting-grad-school-stuff $\;\sim$/boring-grad-school-stuff} to move it to your home directory and rename it. Give it a try!
+    \item<3-> There is also a command called \emph{cp} (copy) that works like \emph{mv} except it copies the file.
+    \item<4-> Finally, maybe you think this is a silly directory and want to get rid of it. You can do that by using the command \emph{rmdir} (remove directory), e.g. \emph{rmdir $\,\sim$/boring-grad-school-stuff}.
+\end{itemize}
+\only<1>{\begin{center}\vspace{-11.5em}\includegraphics[width = \textwidth]{images/phd_stanford.png}\vspace{-0.85em}\end{center}}
+\end{frame}
+
+\begin{frame}{Special directories}
+\begin{itemize}
+    \item<1-> There are two special directories you'll see listed if you type \emph{ls -a}, \emph{.} and \emph{..}, which are used to refer to the current directory and its parent, respectively.
+    \item<2-> For example, if you are in \emph{$\sim$/Documents/grad/} and type \emph{cd ..} your working directory will change to the parent of your current directory, i.e. \emph{$\sim$/Documents}. 
+\end{itemize}
+\end{frame}
+
+\section{What's all this stuff? (Files)}
+\begin{frame}{What's all this stuff? (Files)}
+\begin{itemize}
+    \item<1-> Now let's look at the files within a directory. Many of the commands you've already learned still apply, \emph{ls} will list them, and \emph{mv} will move them.
+    \item<2-> Let's create an empty file to play around with. You can do this by typing \emph{touch emptyfile.txt} (in real life you'll usually be working with files you create in other programs, this way of creating them is just an example). 
+    \item<3-> Now let's try to put some text in the file and save it, just for fun. You can do this from the command line, but how exactly you do it will depend on your OS. 
+    \begin{itemize}
+	\item \textbf{OS X:} try \emph{open emptyfile.txt}. 
+	\item \textbf{GNOME-based linux distros:} try \emph{gedit emptyfile.txt}. 
+	\item \textbf{Windows:} try \emph{notepad emptyfile.txt}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Manipulating files, listing selectively}
+\begin{itemize}
+    \item<1-> Now that we put some text in the file, maybe we ought to rename it to \textit{nonemptyfile.txt}. How do you think we do that?
+    \item<2-> Yup, \emph{mv emptyfile.txt nonemptyfile.txt}. 
+    
+\end{itemize}
+\begin{alertblock}<3->{Warning!}
+\emph{mv} overwrites any files with the same name(s) in its destination, so be careful when using it! If there was another file in this directory called nonemptyfile.txt, we would have overwritten it.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Selectivity and globs}
+\begin{itemize}
+    \item<1-> Let's suppose you come back tomorrow and can't remember what you called this file. You can type \emph{ls} to list everything in the directory and look through for it, but there might be a lot of other stuff. You can make commands be more selective by giving them some hints. For example, type \emph{ls *.txt} to list all files in the current directory ending with a \textit{.txt} extension. Type \emph{ls *empty*} to list files with \textit{empty} in their name.
+\end{itemize}
+\begin{block}<2->{Globs}
+The character * is called a glob, because it sticks together all the files that complete the rest of the pattern I guess, I don't know. Globs are often useful, e.g. you could move all the csv files in the current directory to new directory by typing \emph{mv *.csv ~/Documents/my-new-data-directory}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Removing files}
+\begin{itemize}
+    \item<1-> Just like you can remove directories, you can remove files by using the command \emph{rm} (remove). Try it now by typing \emph{rm nonemptyfile.txt}. 
+\end{itemize}
+\begin{alertblock}<1->{Warning!}
+\emph{rm} is VERY DANGEROUS, especially when used with globs and/or with certain flags (use \emph{man rm} to find out more). It does not simply move a file to the trash, it deletes it completely. Double check what you type before you run it, and don't use \emph{rm} if you're not sure what you're doing. 
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Story time (HANDS OFF THE KEYBOARD!!!)}
+\begin{itemize}
+    \item<1-> A friend of mine, who shall remain anonymous, once saw this command online (DO \textbf{NOT} RUN THIS COMMAND):
+    \item<2-> \emph{rm -rf /} \hspace{1em} (DO \textbf{NOT} RUN THIS COMMAND)
+    \item<3-> And they thought, "I wonder what that does. I'll run it!" (This is often a good way to learn. But \textbf{NOT} in this case. \emph{rm} is dangerous!!) This command wiped their whole computer. T-T
+    \item<4-> Other dangerous commands:
+    \item<5-> \emph{rm -rf ..} \hspace{1em} (DO \textbf{NOT} RUN THIS COMMAND)
+    \item<6-> \emph{rm -rf .} \hspace{1em} (DO \textbf{NOT} RUN THIS COMMAND)
+\end{itemize}
+\begin{alertblock}<1->{CAUTION!!!}
+KEEP YOUR HANDS OFF THE KEYBOARD!!! DO NOT TYPE THIS!!!
+\end{alertblock}
+\end{frame}
+
+
+\section{There are computers other than mine? (Servers/SSH/Websites)}
+\begin{frame}{There are computers other than mine? (Stanford computing clusters)}
+Stanford has a number of computing clusters that you can log into remotely, including:
+\begin{itemize}
+    \item Class or research (or web hosting etc.) machines:
+    \begin{itemize}
+	\item<1-> \textbf{corn:} The workhorse systems, general purpose servers for running small jobs, accessing your shared file space, hosting your website, etc.
+	\item<2-> \textbf{rye:} (somewhat old) GPU machines, still fairly powerful but may not be compatible with newer software. 
+	\item<3-> \textbf{barley:} machines with a job submission system for high memory/high cpu tasks.
+    \end{itemize}
+    \item<4-> Research only clusters:
+    \begin{itemize}
+	\item<4-> \textbf{sherlock:} ~130 computing nodes, both general purpose and specialized nodes (including GPU nodes with 8 Tesla K20Xm cards and 256 GB RAM, and ``big data'' nodes with 1.5 TB RAM). {\color{red} PI must request access for you before you can use sherlock.}
+    \end{itemize}
+\end{itemize}
+\begin{center}\vspace{0em}\includegraphics[width = 0.5\textwidth]{images/farmshare.png}\end{center}
+\end{frame}
+
+\begin{frame}{Connecting to corn}
+\begin{itemize}
+    \item<1-> Let's try to connect to one of Stanford's \textbf{corn} servers, which are available for general use. Type \emph{ssh your-sunet-id@corn.stanford.edu}
+    \item<1-> When prompted for your password, type the password that corresponds to your sunet id. It won't show any characters being typed, just type the password and hit enter. Note: you will probably need to use two-factor authentication, and the timeout is relatively short, have your phone ready.
+    \item<2-> You should see a welcome screen. If so, congrats, you're connected to a server!
+\end{itemize}
+\begin{center}\vspace{0em}\includegraphics[width = 0.5\textwidth]{images/farmshare.png}\end{center}
+\end{frame}
+
+\begin{frame}{Basic SSH}
+\begin{itemize}
+    \item Luckily these servers are running bash as well, so all the commands you've just learned should work here! Try \emph{ls} and see what's around. This is your space on Stanford's servers, you can store documents here, and if you make a Stanford website it will be hosted in the WWW folder. 
+    \item Remember, you're no longer on your own computer, so the directory structure here will be different. 
+    \item When you're finished, you can type \emph{exit} to close the connection to the server and return to your computer. (But don't do so yet, we're going to keep using it.)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A toy website}
+\begin{itemize}
+    \item<1-> Let's try creating a (very) simple website for you!
+    \item<2-> Create a text file called simplewebsite.txt somewhere on your computer, and put some text in it (like "Hello World!"). 
+    \item<3-> Now, open a new terminal on your own computer (leave the other terminal with the ssh connection open, we'll go back to it in a bit). \emph{cd} to the directory where you saved simplewebsite.txt.  
+\end{itemize}
+\begin{center}
+\includegraphics[width = 0.5\textwidth]{images/firstwebsite.jpg}
+\end{center}
+\end{frame}
+
+\begin{frame}{A toy website (cont.)}
+\begin{itemize}
+    \item<1-> We need to move \emph{simplewebsite.txt} to the Stanford servers. To do that, we'll use the command \emph{scp} (secure copy), which allows you to copy files from/to your local computer to/from a remote one much like you would copy a file on your local computer using \emph{cp} 
+    \item<2-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, try \emph{scp simplewebsite.txt your-SUNetID@corn.stanford.edu:$\sim$/WWW/} 
+    \item<3-> If all went well, you should see the name of the file followed by 100\% (since the file is so small, the transfer will complete very rapidly). 
+    \item<3-> If so, try opening your web browser and going to \emph{web.stanford.edu/$\sim$your-SUNetID/simplewebsite.txt} 
+    \item<4-> Do you see your file? Congratulations! You've got a very basic website now. You can use the farmshare system to host experiments that you run online, to create a website for yourself so that people can look you up, etc. The process will be similar to this, except that you'll probably be creating html files instead of text files. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cleaning up the website}
+\begin{itemize}
+    \item<1-> We left the ssh connection open in the other terminal so we can do something with the file on the server.
+    \item<2-> Go ahead and run \emph{ls $\;\sim$/WWW} on the server so you can see \emph{simplewebsite.txt} is there.
+    \item<3-> You might not want the world to be able to see this file forever, so change to the \emph{WWW} directory and remove the file.
+    \item<4-> Finally, close your connection to the server by typing \emph{exit}.
+\end{itemize}
+\begin{alertblock}<3->{Sadness}
+Unfortunately Stanford's servers do not allow public key authentication for login. Instead, you must use Kerberos if you want to have easier login (and it's required for some clusters, such as sherlock). To find out more, check out {\color{blue} \url{https://web.stanford.edu/group/farmshare/cgi-bin/wiki/index.php/Advanced_Connection_Options}} 
+\end{alertblock}
+\end{frame}
+
+\section{Wrapping up the basics}
+
+\begin{frame}{Wrapping up the basics}
+Bash contains or allows access to many powerful tools, and has many arcane (but useful!) features. Here are a few examples of the things you can do with it that we won't have time to explain to you. If you're interested in more info, talk to us and we'll be happy to provide it!
+\end{frame}
+
+\begin{frame}[fragile]{Being lazy (scripts)}
+One of the main reasons bash is useful is that bash commands can be saved into scripts that can be reused. For example, here's a simple shell script I wrote to create anonymized data files by replacing participant identifiers in filenames with numbers starting from 0:
+\begin{lstlisting}
+#!/bin/bash
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Programming}
+The terminal gives you access to programming languages like python, both by running programs directly, and by using \textbf{interpreters}, programs that run in the terminal and allow you to run commands interactively, much as you would in Matlab or R.
+\begin{center}
+\includegraphics[width = \textwidth]{images/python.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Etc.}
+Also:
+\begin{itemize}
+\item Powerful commands for text manipulation (\emph{sed, awk, grep}). Want to find all occurrences of a variable in many different code files and rename it? Want to extract lines from your datafiles that match a certain condition without having to read the files into R? Have a directory full of awful tab-separated datafiles and want to make them comma-separated? These tools can do it. 
+\item Streams and piping: make commands work together, do file I/O, etc.   
+\item Automation: more system specific, but \emph{cron}, rc files, etc. allow for automation of things like backups, mounting filesystems when you start your computer, or sending reminders to subjects on a schedule.
+\item Text-editors like \emph{vim}.
+\item Git version control!
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cheatsheet}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|p{0.5\textwidth}|}
+\hline
+\textbf{Command} & \textbf{Effect} \\
+\hline
+\emph{man command} or \emph{help command} & Get manual/help for a command \\ 
+\emph{pwd} & Print working directory \\
+\emph{cd dir} & Change working directory to \emph{dir} \\
+\emph{ls} & List directory contents \\
+\emph{mkdir dir} & Make a new directory called \emph{dir} \\
+\emph{rmdir dir} & Remove the directory \emph{dir} permanently \\
+\emph{mv source dest} & Move \emph{source} file or folder to \emph{dest} \\
+\emph{cp source dest} & Copy \emph{source} file to \emph{dest} (use -r for folders) \\
+\emph{rm file} & Remove \emph{file} permanently \\
+\emph{ssh user@server} & Connect to \emph{server} as \emph{user} \\
+\emph{scp [[user1@]server1:]source [[user2@]server2:]dest} & Copy \emph{source} from \emph{server1} to \emph{dest} on \emph{server2} (if copying to/from your local computer, just omit the server and user parts in that file's path)\\
+\hline
+\end{tabular}
+}
+(For a more comprehensive reference see {\color{blue} \url{https://gist.github.com/LeCoupa/122b12050f5fb267e75f}})
+\end{frame}
+
+\section{Being lazy (a hands-on intro to shell scripting)}
+\begin{frame}[fragile]{Being lazy (a hands-on intro to shell scripting)}
+\begin{itemize}
+\item<1-> One of the main reasons bash scripting is useful is that you can arrange commands into scripts, which can be used repeatedly (if you have a frequent task you do like converting data files, etc.). 
+\item<2-> This allows you to be lazy (you don't have to do things manually).
+\item<3-> Automation with a script that can be used again is also a better research practice (if you're trying to do the same operation on a bunch of files, you might miss a file or apply the operation twice, and when you look back while writing the paper, you won't remember what you did).
+\item<4-> To download the scripts we're discussing, run the following in your terminal:  
+\begin{lstlisting}
+curl -L http://bit.ly/2cFq4O3 | tar xz
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+\subsection{Anonymizing participants (files, for loops, and variables)}
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+Here's a simple script that creates copies of some data files with the participants identifier replaced with an integer. 
+\begin{lstlisting}[title=anonymize.sh]
+#!/bin/bash
+mkdir ../anonymized_data/
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+To run this script, you would save it as a .sh file, and then run it by calling it by name (e.g. \emph{./anonymize.sh}). Let's go through the script piece by piece and see how it works. 
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+#!/bin/bash
+\end{lstlisting} 
+This line tells the shell that you want to run this script with bash. If you wanted to make a directly executable script in another language (like python) you could just replace the \emph{/bin/bash} part with the path to the interpreter for that language (which you can often find with the command \emph{which}, e.g. \emph{which python}).
+\item<2->
+\begin{lstlisting}
+mkdir ../anonymized_data/
+\end{lstlisting}
+This line creates a directory called \emph{anonymized\_data} in the parent of the current working directory.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+i=0
+\end{lstlisting} 
+This line creates a variable called \emph{i} and sets it to 0. Note the lack of spaces! Variable assignment statements in bash cannot have spaces before or after the equals sign. (Add in some spaces and see if you can figure out what goes wrong.)
+\item<2->
+\begin{lstlisting}
+for f in data_subject_*.json
+do
+...
+done
+\end{lstlisting} 
+This loop finds all files in the current directory which match the pattern, and assigns one to the variable \emph{f}, runs the body of the loop with that assignment, and then assigns the next file to \emph{f} and repeats. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+cp $f ../anonymized_data/data_subject_${i}.json
+\end{lstlisting} 
+This line copies the files \emph{\$f} to the new directory we created, and renames it \emph{data\_subject\_\$\{i\}.json}. Notice that when referencing a variable (\alert{but not when creating it or assigning to it!}), you put a \$ in front of its name. The brackets around the \emph{i} delimit the variable name. They aren't strictly necessary here, but can you think of a place they would be?
+\item<2->
+\begin{lstlisting}
+i=$((i+1))
+\end{lstlisting} 
+This line increments the variable \emph{i}. The \emph{\$((...))} are how you tell bash to do arithmetic. (Note there are many other ways this line could be written, bash does include operators such as \emph{+=} and \emph{++} that you may be familiar with from other languages.)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Anonymizing participants (files, for loops, and variables)}
+\begin{lstlisting}[title=anonymize.sh]
+#!/bin/bash
+mkdir ../anonymized_data/
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+Putting it all together, this script makes a new directory, loops through the data files in the current directory and creates a copy of each in the new directory with the subject identifier replaced with an anonymous ID number.
+\end{frame}
+
+\begin{frame}[fragile]{Files, for loops, and variables exercise}
+\begin{lstlisting}[title=anonymize.sh]
+#!/bin/bash
+mkdir ../anonymized_data/
+i=0
+for f in data_subject_*.json
+do
+  cp $f ../anonymized_data/data_subject_${i}.json
+  i=$((i+1))
+done
+\end{lstlisting}
+Using this code as a guide, try to write (and test!) a script that loops through all text files in the current directory and prints their name and their first line. (Hint: check out the commands \emph{echo} and \emph{head}, you can use \emph{man} to find out more about them, e.g. \emph{man echo}.) 
+\end{frame}
+
+\begin{frame}[fragile]{Files, for loops, and variables exercise}
+Here's one possible answer:
+\begin{lstlisting}[title=text\_preview.sh]
+#!/bin/bash
+for f in *.txt
+do
+    echo $f
+    head -n 1 $f
+done
+\end{lstlisting}
+\end{frame}
+
+\subsection{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+Here's an example of a script that will convert tab-separated value files to comma-separated. It has a few fancier features than the previous script: it takes as an argument the directory to convert files in, and performs some basic error-handling.
+\begin{lstlisting}[title=tsv\_to\_csv.sh]
+#!/bin/bash
+these_files=(${1}/*.tsv)
+if [ ! -e "${these_files[0]}" ]
+then
+    echo Exiting, no .tsv files found in $1
+    exit 1
+fi 
+for f in ${1}/*.tsv
+do
+    sed s/\\t/,/g $f > ${f%.tsv}.csv
+done
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+these_files=(${1}/*.tsv)
+\end{lstlisting}
+This creates a variable called these\_files, and stores in it the tsv files in the variable \lstinline|$1|. You'll notice that we haven't defined this variable. (In fact, you can't.) That's because \lstinline|$1| refers to the first argument passed to this script on the command line when it was run.
+\item<2->
+\begin{lstlisting}
+if [ ! -e "${these_files[0]}" ]
+then
+...
+fi
+\end{lstlisting} 
+This construct is a conditional, it only executes the enclosed code under the condition specified in the \lstinline|[...]|. What's the condition? First,  The \emph{-e} checks if the first of \lstinline|$these_files| exists (as a file), and the \emph{!}, negates the value of whatever expression comes after it. Thus, the code in this chunk only executes if no TSV files exist in the directory that was passed.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+echo Exiting, no .tsv files found in $1
+exit 1
+\end{lstlisting} 
+The echo line tells the user what went wrong, and the exit line exits the script with exit code 1, which means something went wrong. (Exit codes are useful when one script calls another script or program, they allow graceful error handling.)
+\item<2->
+\begin{lstlisting}
+for f in ${1}/*.tsv
+do
+...
+done
+\end{lstlisting}
+Much like the \emph{for} loop we used previously, but loops over .tsv files in the directory \$1.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{TSV to CSV (Conditionals, arguments, and streams)}
+\begin{itemize}
+\item<1->
+\begin{lstlisting}
+sed s/\\t/,/g $f > ${f%.tsv}.csv
+\end{lstlisting} 
+There's a lot going on in this line.
+\begin{itemize}
+    \item<2-> \lstinline|sed s/\\t/,/g $f| invokes the command \emph{sed} (stream editor) on the file \emph{\$f} to replace tabs with commas, and then outputs the result.
+    \item<3-> \lstinline|>| is an operator which redirects the output stream from sed. We won't have time to talk about streams in detail, but what \lstinline|>| basically does is take output from the thing on the left (that would normally be printed) and save it to the file on the right. (Try running \\\lstinline|echo Hello world! > this_is_a_test.txt| to see an example.)
+    \item<4-> \lstinline|${f%.tsv}.csv| uses some of bash's fancy variable access abilities to get the filename but remove the .tsv extension, and then gives it a .csv extension instead. (\% removes the pattern following it from the end of the variable's value.)
+\end{itemize} 
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Conditionals, arguments, and streams exercise}
+\begin{lstlisting}[basicstyle=\small]
+#!/bin/bash
+these_files=(${1}/*.tsv)
+if [ ! -e "${these_files[0]}" ]
+then
+    echo Exiting, no .tsv files found in $1
+    exit 1
+fi 
+for f in ${1}/*.tsv
+do
+    sed s/\\t/,/g $f > ${f%.tsv}.csv
+done
+\end{lstlisting}
+You might want to add several features, such as: 
+\begin{itemize}
+\item distinguishing between a directory which does not exist and a directory which does exist but doesn't have .tsv files
+\item having a default directory (such as the current working directory) if no argument is supplied
+\end{itemize}
+Try to modify the above code to include one or both of these (hint: check out the variable \$\#, and read \lstinline|man test| for the comparison operators). 
+\end{frame}
+
+\begin{frame}[fragile]{Conditionals, arguments, and streams exercise}
+A possible solution for both:
+\begin{lstlisting}[basicstyle=\small]
+#!/bin/bash
+if [ $# -gt 0 ]; then
+    if [ ! -d "$1" ]; then
+        echo Exiting, $1 is not a directory!
+        exit 1
+    fi
+    translation_dir=$1
+else
+    translation_dir=.
+fi
+if [ ! -e ${translation_dir}/*.tsv ]; then
+    echo Exiting, no .tsv files found in $translation_dir
+    exit 1
+fi 
+for f in ${translation_dir}/*.tsv; do
+    sed s/\\t/,/g $f > ${f%.tsv}.csv
+done
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script (SSH review, more streams)}
+Here's a simple script to back up important files to FarmShare (this is just an example, note that GitHub, which you'll learn about later, provides a better place to back up your work in many cases). 
+\begin{lstlisting}[title=backup.sh]
+#!/bin/bash
+today=$(date +%F)
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script (SSH review, more streams)}
+\begin{itemize}
+\item
+\begin{lstlisting}
+today=$(date +%F)
+\end{lstlisting}
+This creates a variable called today, and stores the date in it (the \lstinline|+%F| is an argument telling date what format to output). the \lstinline|$(...)| essentially tells bash to run the commands inside the parentheses and then stick the output into the rest of the line (i.e. save the output to the today variable here). 
+\item
+\begin{lstlisting}
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+\end{lstlisting}
+Creates more variables, one for folder to back up, and one for server + user information.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script (SSH review, more streams)}
+\begin{itemize}
+\item
+\begin{lstlisting}
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+\end{lstlisting}
+This command (note: this is one line broken to fit) compresses the \lstinline|$tobackup| folder and saves it to the \lstinline|$server|. In detail: 
+\begin{itemize}
+    \item<1-> \lstinline|tar czf - $tobackup| compresses the \lstinline|$tobackup| directory and passes the result to the stdout stream
+    \item<2-> \lstinline!|! the \lstinline!|! is called a pipe. It takes the stdout stream and redirects it as input to the following command. 
+    \item<3-> \lstinline|ssh $server ...| logs in to \lstinline|$server| using ssh, and then runs the commands that follow
+    \item<4-> \lstinline|'( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'| The quotes around everything except \lstinline|${today}| tell your computer to not run these commands, instead give them to ssh to run on the server. The \lstinline|cat > '${today}'.tar.gz| part tells the server to take the input it's given (from the pipe above) and save it out to the named file.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Backup script exercise}
+\begin{lstlisting}
+#!/bin/bash
+today=$(date +%F)
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+\end{lstlisting}
+You might also want the script to remove the backup files older than some relative date (e.g. a week ago.) Try to add this functionality. \alert{(Be very careful testing scripts that contain \lstinline|rm|. Use \lstinline|rm -i| to prompt before removing each file.)} (Hint: remember you can use \lstinline|ssh $server  '(...)'| to pass commands to the server. You can pass filenames that you get from another command to \lstinline|rm| using the \lstinline|$(...)| syntax of above. To find files that are older than some date, check out the \lstinline|find| command, and its flags like \lstinline|-mtime|.)
+\end{frame}
+
+\begin{frame}[fragile]{Backup script excercise}
+One possible answer:
+\begin{lstlisting}[title=backup.sh]
+#!/bin/bash
+today=$(date +%F)
+tobackup=~/to_backup
+server=your-SUNet-ID@corn.stanford.edu
+tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
+ssh $server '(rm -i $(find ~/Documents/backup_files/*.tar.gz -mtime +7) )'
+\end{lstlisting}
+(This throws a weird message when there are no old backup files to remove, how could we fix that?)
+\end{frame}
+
+\begin{frame}{Further information}
+\begin{itemize}
+\item \textbf{Detailed cheatsheet:} {\color{blue} \url{https://gist.github.com/LeCoupa/122b12050f5fb267e75f}}
+\item \textbf{Advanced Bash scripting guide:}  {\color{blue} \url{http://tldp.org/LDP/abs/html/}}
+\end{itemize}
+\begin{center}
+\includegraphics[width = 0.8\textwidth]{images/thatsallfolks.png}
+\end{center}
+\end{frame}
+
+\end{document}
