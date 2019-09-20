@@ -148,21 +148,19 @@ Stanford has a number of computing clusters that you can log into remotely, incl
 \begin{itemize}
     \item Class or research (or web hosting etc.) machines:
     \begin{itemize}
-	\item<1-> \textbf{corn:} The workhorse systems, general purpose servers for running small jobs, accessing your shared file space, hosting your website, etc.
-	\item<2-> \textbf{rye:} (somewhat old) GPU machines, still fairly powerful but may not be compatible with newer software. 
-	\item<3-> \textbf{barley:} machines with a job submission system for high memory/high cpu tasks.
+	\item<1-> \textbf{cardinal:} The workhorse systems, general purpose servers for running small jobs, accessing your shared file space, hosting your website, etc.
     \end{itemize}
-    \item<4-> Research only clusters:
+    \item<2-> Research only clusters:
     \begin{itemize}
-	\item<4-> \textbf{sherlock:} ~130 computing nodes, both general purpose and specialized nodes (including GPU nodes with 8 Tesla K20Xm cards and 256 GB RAM, and ``big data'' nodes with 1.5 TB RAM). {\color{red} PI must request access for you before you can use sherlock.}
+	\item<2-> \textbf{sherlock:} ~130 computing nodes, both general purpose and specialized nodes (including GPU nodes with 8 Tesla K20Xm cards and 256 GB RAM, and ``big data'' nodes with 1.5 TB RAM). {\color{red} PI must request access for you before you can use sherlock.}
     \end{itemize}
 \end{itemize}
 \begin{center}\vspace{0em}\includegraphics[width = 0.5\textwidth]{images/farmshare.png}\end{center}
 \end{frame}
 
-\begin{frame}{Connecting to corn}
+\begin{frame}{Connecting to cardinal}
 \begin{itemize}
-    \item<1-> Let's try to connect to one of Stanford's \textbf{corn} servers, which are available for general use. Type \emph{ssh your-sunet-id@corn.stanford.edu}
+    \item<1-> Let's try to connect to one of Stanford's \textbf{cardinal} servers, which are available for general use. Type \emph{ssh your-sunet-id@cardinal.stanford.edu}
     \item<1-> When prompted for your password, type the password that corresponds to your sunet id. It won't show any characters being typed, just type the password and hit enter. Note: you will probably need to use two-factor authentication, and the timeout is relatively short, have your phone ready.
     \item<2-> You should see a welcome screen. If so, congrats, you're connected to a server!
 \end{itemize}
@@ -191,7 +189,7 @@ Stanford has a number of computing clusters that you can log into remotely, incl
 \begin{frame}{A toy website (cont.)}
 \begin{itemize}
     \item<1-> We need to move \emph{simplewebsite.txt} to the Stanford servers. To do that, we'll use the command \emph{scp} (secure copy), which allows you to copy files from/to your local computer to/from a remote one much like you would copy a file on your local computer using \emph{cp} 
-    \item<2-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, try \emph{scp simplewebsite.txt your-SUNetID@corn.stanford.edu:$\sim$/WWW/} 
+    \item<2-> To copy \emph{simplewebsite.txt} to the \emph{$\sim$/WWW} folder on the server, try \emph{scp simplewebsite.txt your-SUNetID@cardinal.stanford.edu:$\sim$/WWW/} 
     \item<3-> If all went well, you should see the name of the file followed by 100\% (since the file is so small, the transfer will complete very rapidly). 
     \item<3-> If so, try opening your web browser and going to \emph{web.stanford.edu/$\sim$your-SUNetID/simplewebsite.txt} 
     \item<4-> Do you see your file? Congratulations! You've got a very basic website now. You can use the farmshare system to host experiments that you run online, to create a website for yourself so that people can look you up, etc. The process will be similar to this, except that you'll probably be creating html files instead of text files. 
@@ -511,7 +509,7 @@ Here's a simple script to back up important files to FarmShare (this is just an 
 #!/bin/bash
 today=$(date +%F)
 tobackup=~/to_backup
-server=your-SUNet-ID@corn.stanford.edu
+server=your-SUNet-ID@cardinal.stanford.edu
 tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
 \end{lstlisting}
 \end{frame}
@@ -526,7 +524,7 @@ This creates a variable called today, and stores the date in it (the \lstinline|
 \item
 \begin{lstlisting}
 tobackup=~/to_backup
-server=your-SUNet-ID@corn.stanford.edu
+server=your-SUNet-ID@cardinal.stanford.edu
 \end{lstlisting}
 Creates more variables, one for folder to back up, and one for server + user information.
 \end{itemize}
@@ -553,7 +551,7 @@ This command (note: this is one line broken to fit) compresses the \lstinline|$t
 #!/bin/bash
 today=$(date +%F)
 tobackup=~/to_backup
-server=your-SUNet-ID@corn.stanford.edu
+server=your-SUNet-ID@cardinal.stanford.edu
 tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
 \end{lstlisting}
 You might also want the script to remove the backup files older than some relative date (e.g. a week ago.) Try to add this functionality. \alert{(Be very careful testing scripts that contain \lstinline|rm|. Use \lstinline|rm -i| to prompt before removing each file.)} (Hint: remember you can use \lstinline|ssh $server  '(...)'| to pass commands to the server. You can pass filenames that you get from another command to \lstinline|rm| using the \lstinline|$(...)| syntax of above. To find files that are older than some date, check out the \lstinline|find| command, and its flags like \lstinline|-mtime|.)
@@ -565,7 +563,7 @@ One possible answer:
 #!/bin/bash
 today=$(date +%F)
 tobackup=~/to_backup
-server=your-SUNet-ID@corn.stanford.edu
+server=your-SUNet-ID@cardinal.stanford.edu
 tar czf - $tobackup | ssh $server '( cd ~/Documents/backup_files/ ; cat > '${today}'.tar.gz )'
 ssh $server '(rm -i $(find ~/Documents/backup_files/*.tar.gz -mtime +7) )'
 \end{lstlisting}
